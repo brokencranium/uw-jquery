@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Puzzling jQuery</title>
+
+  <style type="text/css">
+  #monkeyPuzzle {
+     width: 350px;
+      float: left;
+      border: 1px solid black;
+      background-color: #20AF30;
+  }
+
+  .puzzleBlock {
+      float: left;
+      /* height: 66px; */
+      /* width:  66px; */
+      margin: 0px;
+      border: 2px solid black;
+      border-radius: 5px;
+
+      background-color: green;
+      background-image: url('mustache-monkey.jpg');
+  }
+
+  .puzzleHole {
+      visibility: hidden;
+  }
+
+  .clear {
+      clear: both;
+  }
+  </style>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script>
+  "use strict";
+
+  // number of blocks along each dimension
+  var NUM_BLOCKS = [2,2];
+
+  function getAllBlocks() {
+    // EXERCISE 0: all puzzleBlock elements belong to monkey puzzle
+    return $('#monkeyPuzzle .puzzleBlock');
+  }
+
+  function getMonkeyPuzzle() {
+    // EXERCISE 1: return DOM element with monkeyPuzzle id
+    return $('#monkeyPuzzle');
+  }
+
+  function getBlockAtIdx( row, col ) {
+
+    // clip inputs to be nonnegative, work around for jQuery bug #12682
+    row = (row < 0) ? 0 : row;
+    col = (col < 0) ? 0 : col;
+
+    // EXERCISE 2: get block at given row and col.
+    //       hint: jQuery :eq() selector
+    return $('.puzzleBlock:eq('+col+')', $('.puzzleRow:eq('+row+')'));
+  }
+
+  function getOddRowBlocks() {
+    // EXERCISE 3: return blocks in odd numbered puzzle rows
+    return $('.puzzleRow:odd');
+  }
+
+  function getEvenRowBlocks() {
+    // EXERCISE 4: return blocks in even numbered puzzle rows
+    return $('.puzzleRow:even');
+  }
+
+  function getColumn( col ) {
+    // EXERCISE 5: return all blocks along a column
+    return $('.puzzleBlock:eq('+col+')', $('.puzzleRow'));
+  }
+
+
+  /**
+   * Add puzzle blocks in scrambled order.
+   *
+   * \param    puzzleDiv$   HTML div element that will hold blocks.
+   */
+  function buildPuzzleBlocks( puzzleDiv$ ) {
+
+    // tile dimensions, accounting for css border
+    var tileBorder = 4;
+    var tileDim =
+       Math.floor( puzzleDiv$.innerWidth() / NUM_BLOCKS[0] - tileBorder );
+
+    puzzleDiv$.width( (tileDim+tileBorder) * NUM_BLOCKS[0] );
+
+    // add the blocks
+    var blocks = [];
+    for ( var y = 0; y < NUM_BLOCKS[1]; ++y ) {
+      for ( var x = 0; x < NUM_BLOCKS[0]; ++x ) {
+
+        // image offsets on current block
+        var offX = -x * tileDim;
+        var offY = -y * tileDim;
+
+        // build the block, assign image content
+        var curBlock$ = $('<span></span>')
+                        .addClass('puzzleBlock')
+                        .css('background-position', offX+'px '+offY+'px' )
+                        .width( tileDim )
+                        .height( tileDim )
+                        .data( 'finalPos', [x, y] )
+                        .appendTo( puzzleDiv$ );
+
+        blocks.push( curBlock$ );
+      }
+    }
+
+    // shuffle the blocks
+    for ( var i = blocks.length-1; i > 0; --i ) {
+      var swapIdx = Math.floor( Math.random() * blocks.length );
+      var tmp = blocks[i];
+      blocks[i] = blocks[swapIdx];
+      blocks[swapIdx] = tmp;
+    }
+
+    // poke a "hole"
+    blocks.slice(-1)[0].addClass( 'puzzleHole' );
+
+    // add blocks to our dom tree.  It would be easier to use modular arithmetic
+    // than the additional row spans here, but then we wouldn't have much to
+    // exercise our jQuery selectors on!
+    for ( var i = 0; i < NUM_BLOCKS[1]; ++i ) {
+        $('<span></span>')
+          .addClass( 'puzzleRow' )
+          .append( blocks.slice( i*NUM_BLOCKS[0], (i+1)*NUM_BLOCKS[0] ) )
+          .appendTo( puzzleDiv$ );
+    }
+  }
+
+
+  /**
+   * Get the position of a block in the grid.
+   *
+   * \param    block$
+   *
+   * \return   array with blocks current x,y position.
+   */
+  function getBlockPos( block$ ) {
+
+    // find block index among sibling blocks in row
+    var col = block$.index();
+
+    // find row index among sibling rows in puzzle
+    var row = block$.parent().index();
+
+    return [row, col];
+  }
+
+
+  /**
+   * Puzzle block clicked event handler.
+   *
+   * \param    ev   Event instance.
+   */
+  function blockClicked( ev ) {
+
+    var puzzle$ = getMonkeyPuzzle();
+
+    // blocks current position
+    var curPos = getBlockPos( $(ev.target) );
+
+    // grab neighboring blocks, we'll get empty lists for invalid indexes
+    var neighborElems = [ getBlockAtIdx( curPos[0]-1, curPos[1] ),      // up
+                          getBlockAtIdx( curPos[0]+1, curPos[1] ),      // down
+                          getBlockAtIdx( curPos[0],   curPos[1]-1 ),    // left
+                          getBlockAtIdx( curPos[0],   curPos[1]+1 ) ];  // right
+
+    // look for the hole
+    for ( var i = 0; i < neighborElems.length; ++i ) {
+
+        // no hole
+        if ( !neighborElems[i].hasClass('puzzleHole') ) {
+            continue;
+        }
+
+        var holePos = getBlockPos( neighborElems[i] );
+        var hole$ = getBlockAtIdx( holePos[0], holePos[1] );
+        var block$ = getBlockAtIdx( curPos[0], curPos[1] );
+
+        // swap the css
+        var tmpBgPos = hole$.css( 'background-position' );
+
+        hole$.css( 'background-position',
+                   block$.css('background-position') )
+             .toggleClass( 'puzzleHole' )
+
+        block$.toggleClass( 'puzzleHole' )
+              .css( 'background-position', tmpBgPos );
+
+        // swap the final position data
+        var tmpFinalPos = hole$.data('finalPos');
+        hole$.data( 'finalPos', block$.data('finalPos') );
+        block$.data( 'finalPos', tmpFinalPos );
+    }
+
+    // victory?
+    if ( isPuzzleComplete( getAllBlocks() ) ) {
+       playVictoryAnimation();
+    }
+  }
+
+
+  /**
+   * Checks if all the puzzle pieces are in the correct position.
+   *
+   * \param    blocks$  Puzzle blocks, row-major order.
+   *
+   * \return   whether pieces are in correct positions.
+   */
+  function isPuzzleComplete( blocks$ ) {
+
+    // check if any blocks are out of place
+    var blockIdx = 0;
+    for ( var y = 0; y < NUM_BLOCKS[1]; ++y ) {
+      for ( var x = 0; x < NUM_BLOCKS[0]; ++x ) {
+
+        var correctPos = blocks$.eq( blockIdx++ ).data('finalPos');
+
+        // block not in correct place
+        if ( correctPos.toString() !== [x,y].toString() ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+
+  /**
+   * Victory animation for people who solve the puzzle.
+   *
+   * (Or who are lazy and click the "cheat" link.)
+   */
+  function playVictoryAnimation() {
+
+    // "animation"
+    getOddRowBlocks().hide(1500).show(500);
+    getEvenRowBlocks().hide(500).show(1500);
+
+    // manage async events using promises, just for fun
+    getAllBlocks().promise().done( function(e) {
+
+      // wait for animation complete via callback
+      getColumn(1)
+        .hide(200)
+        .show(300,
+          function() {
+            $(this).removeClass('puzzleHole');
+            alert( "You win!" );
+          }
+        );
+
+    } );
+  }
+
+
+  /*
+   * Ready handler.
+   */
+  $( function() {
+
+    var puzzle$ = getMonkeyPuzzle();
+
+    // assemble the puzzle blocks
+    buildPuzzleBlocks( puzzle$ );
+
+    // listen to click events on the puzzle tiles
+    puzzle$.on( 'click', '.puzzleBlock', blockClicked );
+
+    // you can test the victory animation using the cheat link
+    $('#cheatLink').click(
+      function(e) {
+        playVictoryAnimation();
+        return false;
+      }
+    );
+
+  } );
+  </script>
+</head>
+<body>
+
+<h1>Puzzling jQuery</h1>
+
+<div id="monkeyPuzzle"></div>
+
+<br class="clear" />
+
+<p>
+<small><a href="mustache-monkey.jpg">See puzzle solution</a></small>
+</p>
+
+<p>
+In the JavaScript code, there are functions that you need to complete.  Each one
+has been marked by an <code>EXERCISE</code> comment.  When all the functions are
+correctly implemented, you should have a working puzzle game.  Take a look at
+the <a href="http://api.jquery.com/category/selectors/">jQuery selectors</a>
+documentation to see what selectors are available.
+</p>
+
+<p>
+Exercises 1 and 2 are needed for the basic game play.  Exercises 3, 4, and 5 are
+used for the "victory" animation.  To make your life easier, you can trigger and test the victory animation use this <a id="cheatLink" href="#">cheat link</a>.
+<p>
+
+<p>
+If you remember your CSS, this should be straight forward.  An example has
+already been done for you:
+</p>
+
+<pre>
+  /**
+   * Get the monkey puzzle element.
+   *
+   * \return   jQuery set with single jQuery object, the "monkeyPuzzle" div
+   *           element.
+   */
+  function getPuzzle() {
+    // EXERCISE 0
+    return $('#monkeyPuzzle');
+  }
+</pre>
+
+<p>
+When you're done, email the completed <code>assign1.html</code> to <a
+href="mailto:niek.sanders@gmail.com">niek.sanders@gmail.com</a>.  Include your
+full name in the message body.  This assignment is due by the end of October
+16th.
+</p>
+
+<small>
+The photo â€œMustachioed Monkeesâ€ was taken by Mark Dumont and is under a CC BY
+2.0 license.
+</small>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>WEBLAMP 411 - Assignment 2, Part 1</title>
+
+	<style type="text/css">
+	body {
+		font-family: sans-serif;
+	}
+	
+	#mainContent {
+		padding: 5px;
+		padding-top: 0px;
+		float: left;
+	}
+	
+	#ideaList > li {
+	    font-weight: bold;
+		margin-top: 10px;
+	}
+	
+	#ideaList ul li {
+	    font-weight: normal;
+	}
+	
+	.visitedDomElement {
+		background-color: cyan;
+	}
+	</style>
+	
+	<script type="text/javascript" src="./jquery-1.8.2.js"></script>
+	<script type="text/javascript">
+	"use strict";
+
+    // EXERCISE: FILL ME IN!
+	</script>
+</head>
+<body>
+
+<h1>Assignment 2, Part 1 - Event Bubbling</h1>
+
+<div id="mainContent">
+
+<p>
+	The objective of this assignment is to visualize DOM event bubbling.  
+	We want to color the background of each DOM element cyan in the order 
+	that the event propagated past it.  The idea being that if we click 
+	on a nested element, we'll first see the element turn cyan, then its 
+	parent, then its grandparent, etc.
+</p>
+
+<p>
+	We've covered most of the needed ingredients in class:
+</p>
+
+<ul id="ideaList">
+<li>jQuery Selectors
+	<ul>
+	<li>We want to select everything under &lt;body&gt; and bind a click
+	    handler that marks which DOM elements saw the event.</li>
+	<li>We want to select the &lt;body&gt; tag itself.  It should not only 
+	    mark that it saw the event, it should also begin the sequence of DOM 
+		element background coloring events.</li>
+	</ul>
+</li>
+<li>jQuery Event Handlers
+    <ul>
+	<li>We can bind a "click" event handler to each DOM element under body to 
+	    mark that an event passed by.</li>
+	<li>We can bind a separate click event handler to &lt;body&gt; that begins 
+	    the coloring sequence.</li>
+	<li>Inside the event handler, the <code>this</code> variable represents the 
+	    current DOM element.</li>
+	</ul>
+</li>
+<li>Storing lists of visited DOM elements
+    <ul>
+	<li>In class, we've looked at the jQuery <code>data()</code> function, which 
+	    would let you store a list of visited elements somewhere on the DOM.</li>
+	<li>You could use a global JavaScript variable by making an array called
+	    <code>window.visitedDomElems</code>, or something similar.</li>
+	<li>You could experiment with adding a property of the jQuery event object
+	    that your click handlers see</li>
+	</ul>
+</li>
+</ul>
+
+<p>
+	For animating which DOM elements have been visited, you may use the 
+	following code.  (You're also welcome to implement to your own approach).
+</p>	
+	
+<pre>
+
+	/**
+	 * Mark which DOM elements have been visited by adding the visitedDomElement 
+	 * CSS class for a brief time.
+	 *
+	 * JavaScript provides the window.setTimeout() function that lets us put a delay 
+	 * in the coloring process.  After the timer expires, we recurse and complete the
+	 * process if any items remain on the domElems array.
+	 *
+	 * The Array.slice() method is used to make a deep-copy of our input array, 
+	 * minus the first element which we just finished processing.
+	 *
+	 * @param domElems   An array where the first element is what was clicked.  The 
+	 *                   second element is its parent.  The third element is its 
+	 *                   grandparent, etc.  The last element should be the body tag.
+	 */
+	function markVisits( domElems ) {
+	
+		// color inner-most element
+		$(domElems[0]).addClass( 'visitedDomElement' );
+		
+		// debugging output in the dev console
+		console.log( domElems[0].tagName );
+		
+		// leave coloring around for one second
+		var sleepTimeMsec = 1000;
+		window.setTimeout(
+			function() {
+				// uncolor our element
+				$(domElems[0]).removeClass( 'visitedDomElement' );
+				
+				// recurse if additional elements remain
+				if ( domElems.length > 1 ) {
+					markVisits( domElems.slice( 1 ) );
+				}
+			},
+			sleepTimeMsec
+		);
+	}
+</pre>
+
+<p>
+    Your completed implementation go in the <code>&lt;script&gt;</code> block of
+    this HTML file.  When the assignment is complete, you can submit it via
+    Moodle.  (See link under Lesson 3).
+</p>
+
+</div>
+
+</body>
+</html>

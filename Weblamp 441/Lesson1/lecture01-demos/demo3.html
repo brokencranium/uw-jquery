@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>append() vs appendTo()</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript">
+  // ready handler
+  $( function() {
+  
+  
+    // Several of the jQuery chaining functions have both a foo() and a fooTo().  
+	// At any point in time, pick which ever one makes your life simpler.
+
+	$('#cat').append( $('.litterbox') );
+ 
+    // Uncomment the line below, comment the line above.  Behavior is the same.
+    //$('.litterbox').appendTo( '#cat' )
+  } );
+  </script>
+  
+  </head>
+<body>
+
+<ul id="cat">
+<li>a</li>
+<li>b</li>
+<li>c</li>
+<li>d</li>
+<li>e</li>
+</ul>
+
+<ul class="litterbox">
+<li>1</li>
+<li>2</li>
+<li>3</li>
+<li>4</li>
+<li>5</li>
+</ul>
+
+<ul class="litterbox">
+<li>Tree</li>
+<li>Grass</li>
+</ul>
+
+</body>
+</html>

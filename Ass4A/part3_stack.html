@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Population Explosion</title>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="http://code.highcharts.com/highcharts.js"></script>
+		<script src="http://code.highcharts.com/modules/exporting.js"></script>
+		<script type="text/javascript" src="jquery.dataTables.js"></script>
+		<link rel="stylesheet" type="text/css" href="table.css">
+		<script type="text/javascript">
+			"use strict";
+			$(function() {
+				var chart;
+				$(document).ready(function() {
+
+					$('#pop').dataTable({
+						"bProcessing" : true,
+						"bAutoWidth" : true,
+						"sAjaxSource" : 'data.txt'
+					});
+
+					chart = new Highcharts.Chart({
+						chart : {
+							renderTo : 'container',
+							type : 'bar',
+						},
+						title : {
+							text : 'List of countries by past and future population',
+							x : -20 //center
+						},
+						subtitle : {
+							text : 'Source: en.wikipedia.org',
+							x : -20
+						},
+						xAxis : {
+							categories : ['1950', '1955', '1960', '1965', '1970', '1975', '2020', '2025', '2030', '2035', '2040', '2045']
+						},
+						yAxis : {
+							title : {
+								text : 'Population count (millions)'
+							},
+							plotLines : [{
+								value : 0,
+								width : 1,
+								color : '#808080'
+							}]
+						},
+						tooltip : {
+							formatter : function() {
+								return '<b>' + this.series.name + '</b><br/>' + this.x + ': ' + this.y + 'mill';
+							}
+						},
+						legend : {
+							backgroundColor : '#FFFFFF',
+							reversed : true
+						},
+						plotOptions : {
+							series : {
+								stacking : 'normal'
+							}
+						},
+						series : [{
+							name : 'China',
+							data : [562580, 606730, 650661, 715546, 820403, 917899, 1384545, 1394639, 1391491, 1378255, 1358519, 1333892]
+						}, {
+							name : 'India',
+							data : [369880, 404268, 445393, 494964, 553889, 618923, 1326093, 1396046, 1460743, 1519491, 1571715, 1617238]
+						}, {
+							name : 'United States',
+							data : [151868, 165069, 179979, 193526, 203984, 215465, 336836, 351353, 365683, 379810, 393856, 408012]
+						}, {
+							name : 'Nigeria',
+							data : [31797, 35955, 41550, 48068, 55590, 64428, 207699, 234363, 263626, 295349, 329227, 364986]
+						}, {
+							name : 'Indonesia',
+							data : [82978, 90255, 100146, 110754, 122292, 135272, 267532, 278503, 288678, 297585, 304686, 309799]
+						}]
+					});
+				});
+
+			});
+
+		</script>
+	</head>
+	<body>
+
+		<h1>Population Explosion</h1>
+		<form id="frmSubmitCraig">
+			<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+			<br>
+			<br>
+			<br>
+			<br>
+			<table cellspacing="0" border="0" class="display" id="pop">
+				<thead>
+					<tr>
+						<th rowspan="2">Country</th>
+						<th colspan="12">Population per year</th>
+					</tr>
+					<tr>
+						<th>1950</th>
+						<th>1955</th>
+						<th>1960</th>
+						<th>1965</th>
+						<th>1970</th>
+						<th>1975</th>
+						<th>2020</th>
+						<th>2025</th>
+						<th>2030</th>
+						<th>2035</th>
+						<th>2040</th>
+						<th>2045</th>
+					</tr>
+				</thead>
+				<tbody>
+
+				</tbody>
+				<tfoot>
+					<tr>
+						<th rowspan="2">Country</th>
+						<th>1950</th>
+						<th>1955</th>
+						<th>1960</th>
+						<th>1965</th>
+						<th>1970</th>
+						<th>1975</th>
+						<th>2020</th>
+						<th>2025</th>
+						<th>2030</th>
+						<th>2035</th>
+						<th>2040</th>
+						<th>2045</th>
+					</tr>
+					<tr>
+						<th colspan="12">Population per year</th>
+					</tr>
+				</tfoot>
+			</table>
+		</form>
+
+	</body>
+</html>

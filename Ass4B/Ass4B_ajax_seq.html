@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Ajax Sequencing</title>
+
+		<style type="text/css">
+			.probDiv {
+				background-color: lightgreen;
+				padding: 10px;
+			}
+		</style>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script type="text/javascript">
+		//strict;
+			var url = 'http://courses.washington.edu/poswd20/sequence.php?callback=?';
+			var reqNum = 0;
+			var results = [];
+			var maxWritten = 0;
+			var defCompResp=[];
+
+			function outOfSeq() {
+
+				for (var i = 0; i < 20; ++i) {
+					$.getJSON(url, {
+						'seq' : i
+					}, function(resp) {
+						console.log(resp.seq);
+					});
+				}
+			}
+
+			function callbackChaining(resp) {
+				// EXERCISE 2 goes here
+				console.log("Ex 2 " + resp.seq); ++window.reqNum;
+				if (window.reqNum <= 20) {
+					$.getJSON(url, {
+						'seq' : reqNum
+					}, callbackChaining);
+				}
+			}
+
+			function sortNumber(a, b) {
+				return a - b;
+			}
+
+			function resInsCallback(resp) {
+				results.push(resp.seq);
+				results.sort(sortNumber);
+				for (var i = 0; i < results.length; i++) {
+					if (results[i] <= maxWritten) {
+						console.log("Ex 3 " + results[i]);
+						delete results[i];
+						++maxWritten;
+					}
+				}
+			}
+
+			function resultInspection() {
+				// EXERCISE 3 goes here
+
+				for (var i = 0; i <= 20; ++i) {
+					$.getJSON(url, {
+						'seq' : i
+					}, resInsCallback);
+				}
+
+			}
+
+			function deferComp(resp) {
+				defCompResp.push(resp.seq);
+				defCompResp.sort(sortNumber);
+			}
+
+			function getDeferreds() {
+
+				var deferreds = [];
+
+				var i = 0;
+				for ( i = 0; i <= 20; i++) {
+					var count = i;
+
+					deferreds.push($.getJSON(url, {
+						'seq' : i
+					}, deferComp));
+				}
+
+				return deferreds;
+
+			}
+
+
+			function jqueryDeferreds() {
+				// EXERCISE 3 goes here
+				var defer = getDeferreds();
+
+				$.when.apply(null, defer).done(function() {
+					// number of args
+					console.log('EX 4- Number of args: ' + defCompResp.length);
+					// value of each argument
+					for (var i = 0; i < defCompResp.length; ++i) {
+						console.log('EX 4 arg ' + i + ': ' + defCompResp[i]);
+					}
+				});
+			}
+
+
+			$(document).ready(function() {
+				//outOfSeq();
+				//Ex 2
+				$.getJSON(url, {
+					'seq' : reqNum
+				}, callbackChaining);
+
+				//Ex 3
+				resultInspection();
+
+				//Ex 4
+
+				jqueryDeferreds();
+			});
+
+		</script>
+
+	</head>
+
+	<h1>Ajax Sequencing</h1>
+
+	<h2>Introduction</h2>
+
+	<p>
+		Ajax does not give any ordering guarantees.  If you make 20 requests in a row,
+		the results may come back in any order.  We illustrated this issue in class:
+	</p>
+	<pre>
+  var url = 'http://courses.washington.edu/poswd100/sequence.php?callback=?';
+
+  for ( var i = 0; i &lt; 20; ++i ) {
+    $.getJSON( url, {'seq': i},
+               function(resp) {
+                 console.log( resp.seq );
+               } );
+  }
+  </pre>
+
+
+
+
+
+
+
+
+
+
+	<p>
+		To demo the out-of-order effect, the class PHP script added a random sleep
+		before emitting a response.  Note that this sleep isn't actually needed to
+		cause this behavior.  Normal network and server latencies will also cause
+		out-of-sequence responses.  It's just easier to reproduce using the explicit
+		randomized sleep.
+	</p>
+
+	<div class="probDiv">
+		<h3>Exercise 1</h3>
+		<p>
+			The PHP script has been included with this assignment.  Upload it to your UW
+			web account.  For all remaining parts of this assignment, call your copy of
+			the script using JSONP requests.
+		</p>
+	</div>
+
+	<p>
+		The "Network" tab in the Chrome developer tools can be very handy when trying
+		to debug Ajax related problems, including sequencing issues.  It shows you
+		exactly what requests are going out and when.  It also shows you when the
+		answers come back.
+	</p>
+
+	<h2>Callback Chaining</h2>
+
+	<p>
+		In class we demonstrated one technique for forcing an ordering on the results.
+		We initiated each successive request in the sequence in the result callback of
+		the previous request.
+	</p>
+
+	<div class="probDiv">
+		<h3>Exercise 2</h3>
+		<p>
+			Implement the callback-based sequencing solution that we demonstrated in
+			class.  The code goes in the
+			<code>
+				callbackChaining()
+			</code> stub of this HTML
+			file.  Make JSONP requests against your copy of the PHP script and write the
+			results to the console.
+		</p>
+	</div>
+
+	<p>
+		While this approach does work, it has the downside of being extremely slow.
+		Essentially, you are throwing away any potential parallism in order to enforce
+		a serialization on your results.  Take a look at the "Network" tab of the
+		Chrome dev tools as your code executes.  You should be able to see the callbacks
+		in action.
+	</p>
+
+	<p>
+		This is a useful time to share some vocabulary.
+	<p>
+
+	<p>
+		<dfn>Throughput</dfn> is the total number of items processed in a period of
+		time.  That's pretty abstract!  Here is a concrete example.  For what we're
+		doing, we can measure throughput by looking at the processing time for our
+		20 api requests.  (20 reqs) / (X seconds total time) = (Y reqs / second).
+		Normally the browser tries to increase throughput by downloading multiple
+		assets simultaneously.  Our callback technique prevents this behavior, giving
+		us the correct answer but a lower throughput.
+	</p>
+
+	<p>
+		<dfn>Latency</dfn> measures how long it takes to get a response when you make
+		a request.  In this example, we measure latency from the time we make an API
+		request till the time that the answer is available.  The Network tab in the
+		Chrome dev tools shows you latency under in the "Time" column.  In the
+		"Timeline", the light part of the bar shows the time between the initial
+		request and the first bytes coming back from the server.  The dark part of the
+		bar shows data being transferred in.  The length of the bar--both light and
+		dark parts--shows the total latency.
+	</p>
+
+	<p>
+		Throughput and Latency are related but not the same.  Here is one last example
+		to help visualize the difference.  If I load up a box truck with data-filled
+		thumbdrives and drive from Seattle to Portland, my throughput is massive.
+		However, my latency is terrible--it takes hours of driving.  In contrast, I
+		can send an SMS to my Portland buddy in just a few seconds.  Much better
+		latency, but now my throughput is terrible (hundred or so bytes a message).
+	</p>
+
+	<p>
+		Finally, <dfn>Round-tripping</dfn> in the context of an API means making
+		multiple sequential requests.  That's exactly what we're doing in this
+		exercise, and it can sometimes be an indicator of poorly written code.
+		Sometimes you can rewrite the client to make the requests in parallel as we do
+		in the next section.  You can also update the backend API to accept multiple
+		requests in a single call, reducing the number of trips over the network.
+	<p>
+
+		<h2>Result Inspection</h2>
+
+	<p>
+		Rather than wait for a request to complete before firing off the next one, we
+		can inspect our results and enforce the ordering constraint there.  So for
+		this code, we fire off all the requests at once like we do in the
+		<code>
+			outOfSeq()
+		</code> example in this HTML file.  We ensure that results are
+		printed in the proper order by holding on to responses until all predecessors
+		have come in.  The pseudo code below explains this idea:
+	</p>
+	<pre>
+  var results = [];
+  var maxWritten = -1;
+
+  for ( var i = 0; i &lt; 20; ++i ) {
+
+    // make ajax call and then in callback:
+    //
+    //  a) store answer in results array
+    //
+    //  b) check if maxWritten+1 is defined in results array.  If yes, print
+    //     it.  If no, callback is done.
+    //
+    //  c) increment maxWritten, repeat (b) until we hit undefined result or all
+    //     20 items have been written out.
+
+  }
+  </pre>
+
+
+
+
+
+
+
+
+
+
+	<div class="probDiv">
+		<h3>Exercise 3</h3>
+		<p>
+			Implement the code sketched out above.  Your answer goes in the
+			<code>
+				resultInspection()
+			</code>
+			stub of this HTML file.
+		</p>
+	</div>
+
+	<p>
+		This technique works around the throughput limitations of callback chaining.
+		Our browser still fires off multiple requests; our answers still write out in
+		sequence.  The downsides are the added code complexity and the storage
+		requirements for unprocessed AJAX results.
+	</p>
+
+	<p>
+		Technically, we don't have to hold on to all of the responses.  We really only
+		need to store those that have not yet been processed.  After processing, we
+		could free up the response for garbage collection, if we were so inclined.
+	</p>
+
+	<h2>jQuery Deferreds</h2>
+
+	<p>
+		Our final sequencing technique will used jQuery deferred objects.
+		Read over the API documentation for <a href="http://api.jquery.com/jQuery.when/">when()</a>.
+	</p>
+
+	<p>
+		There are two preliminaries needed for this final exercise.
+	</p>
+
+	<p>
+		First, we need to handle the fact that when() does not take an array of
+		arguments.  In class we discussed the call() and apply() methods available in
+		JavaScript.  We can use apply() to "unwrap" an array of deferred objects and
+		pass it in to when().  See this
+		<a href="http://stackoverflow.com/questions/5627284/">StackOverflow page</a>
+		for details.
+	</p>
+
+	<p>
+		Second, we need to create a callback which handles the result from when().  We
+		could write a function which explicitly takes 20 arguments.  Our code would
+		then have to poke each and every argument to extract a result.  A better way
+		is to use the
+		<code>
+			arguments
+		</code> array which JavaScript sets in every
+		function call.  You can use this array to see how many arguments you were
+		called with, and to extract the values of those arguments:
+	</p>
+	<pre>
+  function foo() {
+
+    // number of args
+    console.log( 'number of args: ' + arguments.length );
+
+    // value of each argument
+    for ( var i = 0; i &lt; arguments.length; ++i ) {
+      console.log( 'arg ' + i + ': ' + arguments[i] );
+    }
+  }
+  </pre>
+
+
+
+
+
+
+
+
+
+
+	<div class="probDiv">
+		<h3>Exercise 4</h3>
+		<p>
+			Write the API responses to the console in sequence using when() and done().
+			First, make all your JSONP calls using a loop and store the deferred objects
+			in an array.  Pass this array of deferreds to when() by using apply().
+			Finally, write a done() callback which loops over all the responses using the
+			special JavaScript
+			<code>
+				arguments
+			</code>
+			array and prints the answers in
+			order.  The code goes in the
+			<code>
+				jqueryDeferreds()
+			</code> stub of this HTML
+			file.
+		</p>
+	</div>
+
+	<p>
+		This technique strikes a balance between callback chaining and result
+		inspection.  It allows the browser to make multiple simultaneous requests,
+		increasing throughput.  However, it must wait for all the requests to complete
+		before taking any action, so the perceived latency is higher than the result
+		inspection technique.  On the other hand, this code is much simpler than
+		manually tracking the results.
+	</p>
+
+</html>

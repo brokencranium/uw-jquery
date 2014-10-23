@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Create new DOM elements on the fly!</title>
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript">
+  // ready handler
+  $( function() {
+  
+    // create one hundred new list items
+    for ( var i = 0; i < 100; ++i ) {
+  
+      // jQuery realizes that we've passed HTML rather than a selector in to the 
+	  // $() function.  It creates the DOM element for us.  We set some text and 
+	  // then attach it to the face friends list.  
+      $("<li></li>").text( "Item " + i ).appendTo( '#facebookFriends' );
+    }
+
+  } );
+  </script>
+  
+  </head>
+<body>
+
+<ul id="facebookFriends">
+</ul>
+
+</body>
+</html>

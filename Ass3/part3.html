@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>WEBLAMP 411 - Assignment 3, Part 3</title>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script type="text/javascript" src="jquery.dataTables.js"></script>
+        <link rel="stylesheet" type="text/css" href="table.css">
+		<script type="text/javascript">
+			"use strict";
+
+		$(document).ready(function() {
+		$('#tax').dataTable( {
+		"bProcessing": true,
+		"bAutoWidth": true,
+		"sAjaxSource": 'taxes.txt'
+		} );
+		} );
+
+		</script>
+	</head>
+	<body>
+
+		<h1>Assignment 3, Part 2 - Craigs List Job Search</h1>
+		<form id="frmSubmitCraig">
+			<table cellspacing="0" border="0" class="display" id="tax">
+	<thead>
+		<tr>
+			<th>At least</th>
+			<th>But less than</th>
+			<th>Single</th>
+			<th>Married filing jointly</th>
+			<th>Married filing separately</th>
+			<th>Head of a Household</th>
+		</tr>
+	</thead>
+	<tbody>
+
+	</tbody>
+	<tfoot>
+		<tr>
+			<th>At least</th>
+			<th>But less than</th>
+			<th>Single</th>
+			<th>Married filing jointly</th>
+			<th>Married filing separately</th>
+			<th>Head of a Household</th>
+		</tr>
+	</tfoot>
+</table>
+		</form>
+		<ul id ="outQuery">
+		</ul>
+
+	</body>
+</html>

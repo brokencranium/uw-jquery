@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Forms Validation</title>
+
+<script type="text/javascript">
+
+	// when we load document, reset the form and prepare it for input
+// by calling resetForm() function.
+// document.forms[0] means "the first form in the document"
+// document.forms[1] would mean "the second form in the document", etc.
+
+
+var userNameGlobalError = "You must enter a username.";
+var userNamerError = "Enter a name.";
+var emailaddrGlobalError = "sYou must enter a valid email address.";
+var emailaddrError = "Enter an email address.";
+
+function loadDoc() {
+	resetForm(document.forms[0]);
+}
+
+
+var $ = function(id){
+	return document.getElementById(id);
+	}
+
+
+function resetForm(inputForm) {
+	// set the value of the 'name' variable to blank
+	inputForm.username.value="";
+
+	// focus on first form field
+	inputForm.username.focus();
+
+}
+
+
+function gainedFocus(element){
+	form = element.form;
+
+	switch(element) {
+		case form.username:
+			if( element.value == userNameError ){
+				element.value = "";
+
+			}
+			break;
+}
+}
+
+function lostFocus(element){
+	var form = element.form;
+	var formErrors = document.getElementById("formerrors");
+	  if(element == form.username) {
+	   if(element.value == "" || element.value == usernameError) {
+			document.getElementById("formerrors").innerHTML = usernameGlobalError;
+			element.value = userNameError;
+	      }
+		  else
+		   {
+			if(formerrors.innerHTML == userNameGlobalError)
+			{
+				formerrors.innerHTML=="";
+			}
+			}
+		}
+	}
+
+
+function submitIt(inputForm) {
+	alert("smile");
+	// 'inputForm' is now equal to the form object
+	// because we used the 'this' keyword when we
+	// called the function via the 'onsubmit" event
+	// handler in the HTML below
+
+
+	// begin by clearing out the error display area
+	// so that we start with a clean slate:
+	document.getElementById("formerrors").innerHTML="&nbsp";
+
+
+	// if name is blank, make user go back and correct
+	// it before continuing on:
+	var username = inputForm.username;
+	if (inputForm.username.value == "" || inputForm.username.value == userNameError) {
+		document.getElementById("formerrors").innerHTML = usernameGlobalError;
+
+		username.focus();
+		username.select();
+
+		document.getElementById("username").focus();
+		//inputForm.username.select();
+
+		return false;
+	}
+}
+
+/*$("uwCampus").focus();
+
+var campus = function (){
+	var selectCampus = parseInt($("uwCampus").value);
+	switch (selectCampus){
+		case 0:
+			$("inpCampus").value="Seattle";
+			break;
+		case 1:
+			$("inpCampus").value="Bothell";
+			break;
+		case 2:
+			$("inpCampus").value="Tacoma";
+			break;
+		case 3:
+			$("inpCampus").value="Online/Distance Learning";
+			break;
+		default:
+			$("inpCampus").value="Main Campus-Seattle";
+	}
+
+	function addEvents(){
+		$("university").addEventListener('click', function(){
+			document.write($("university"))
+			}, false);
+	}
+
+	//var emailaddr = inputForm.emailaddr;
+	//if(inputForm.emailaddr.value == "" || emailaddr.value == emailAddrError) {
+	//document.getElementById("formerrors".innerHTML= emailAddrGlobalError);
+
+		//emailaddr.focus();
+		//emailaddr.select();
+	//}
+
+	// if we made it to here, the form is OK!
+	// now we want to send output to a new window:
+
+
+	function newWin(){
+	newWindow = window.open("","newWin");
+	newWindow.focus();
+	newWindow.document.write("<p><strong>User Name: </strong> <em>" +
+		inputForm.username.value.toUpperCase() +
+		"</em></p>");
+
+	newWindow.document.close();
+
+	return false;
+	}
+}
+
+
+/*
+PASTE other validation functions here (validEmail(), isNum(), etc.)
+from the section below, the web, or your own into the header for your own use
+*/
+/*
+function validEmail(email) {
+			var invalidChars = " /:,;";
+
+			if (email == "") {
+				return false;
+			}
+			for (var k=0; k<invalidChars.length; k++) {
+				var badChar = invalidChars.charAt(k);
+				if (email.indexOf(badChar) > -1) {
+					return false;
+				}
+			}
+			var atPos = email.indexOf("@",1);
+			if (atPos == -1) {
+				return false;
+			}
+			if (email.indexOf("@",atPos+1) != -1) {
+				return false;
+			}
+			var periodPos = email.indexOf(".",atPos);
+			if (periodPos == -1) {
+				return false;
+			}
+			if (periodPos+3 > email.length)	{
+				return false;
+			}
+			return true;
+		}
+
+// checks for a properly formatted phone number:
+
+function isPhoneNumber(s)
+		{
+			// Check for correct phone number
+			//Phone Number Must Be Entered As: (555) 555-1234
+
+			rePhoneNumber = new RegExp(/^\([1-9]\d{2}\)\s?\d{3}\-\d{4}$/);
+
+			if (!rePhoneNumber.test(s)) {
+				  return false;
+			}
+
+			return true;
+		}
+
+
+*/
+
+window.onload = loadDoc;
+
+	</script>
+
+</head>
+
+<body>
+
+<h1>UW User Account Information Form</h1>
+
+<form method="post" name="myform" onsubmit="submitIt(this);">
+
+	<div style="color:red;font-weight:bold">
+	<span id="formerrors">&nbsp;</span><br /><br />
+	</div>
+
+	Select your UW Graduate campus:
+	<select name="university" id="university">
+
+		<option value="0">Seattle</option>
+		<option value="1">Bothell</option>
+		<option value="2">Tacoma</option>
+		<option value="3">Online/Distance Learning</option>
+		<option value="4">default</option>
+	</select>
+	<br /><br />
+
+
+	<label for="username">User Name:</label><br />
+	<input type="text" id="username" name="username" onblur="lostFocus(this);" onfocus="gainedFocus(this);" />
+	<br /><br />
+
+	<label for="email address">Email Address:</label><br />
+	<input type="text" id="email address" name="email address" onblur="lostFocus(this)"; onfocus="gainedFocus(this);" />
+
+	<br /><br />
+
+	<label for="phone number">Phone Number:</label><br />
+	<input type="text" id="phone number" name="phone number" onblur="lostFocus(this);" onfocus="gainedFocus(this);" />
+	<br /><br />
+
+	<input type="submit" value="Submit" />
+
+	<br /><br />
+
+	<input type="button" value="Reset" onclick="resetForm(this.form);" />
+	<!-- "this.form" above means "the form that this input element is on" -->
+
+</form>
+
+</body>
+</html>

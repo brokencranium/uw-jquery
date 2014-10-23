@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>WEBLAMP 411 - Assignment 2, Part 2</title>
+
+  <script type="text/javascript">
+  "use strict";
+
+  function makeFred() {
+  	var student = new Object;
+	student.name = "Fred";
+	student['favorite cheese'] = "munster";
+	student['test scores'] = new Array;
+	student['test scores'].push( 91 );
+	student['test scores'].push( 95 );
+	student['test scores'].push( 92 );
+	return student;
+  }
+
+  function exerciseA() {
+	// EXERCISE A: object literal notation for student
+	var student = new Object;
+	student.name = "Bob";
+	student['favorite cheese'] = "goat cheese";
+	student['test scores'] = new Array;
+	student['test scores'].push( 15 );
+	student['test scores'].push( 7 );
+	student['test scores'].push( 0 );
+
+	return student;
+  }
+
+  function exerciseB() {
+	var student = makeFred();
+
+	// EXERCISE B: return "name" using dot notation
+	return student.name;
+  }
+
+  function exerciseC() {
+	var student = makeFred();
+
+	// EXERCISE C: return "favorite cheese" using [] notation
+	return sudent['favorite cheese'];
+  }
+
+  function exerciseD() {
+	var student = makeFred();
+
+	// EXERCISE D: list properties in student using for loop
+	  for (var objName in student ) {
+		var curProperty = objName ;
+		var curValue    = student[objName];
+		console.log( curProperty + " -> " + curValue.toString() );
+	}
+  }
+
+  function exerciseE() {
+	var student = makeFred();
+
+	// EXERCISE E: list test scores in student using for loop
+	//             use "i" as your loop variable.
+	for ( var i = 0; i<student['test scores'].length;++i ) {
+	    var score = student['test scores'][i];
+	    console.log( "test " + i + ": " + score );
+	}
+  }
+
+  function exerciseF() {
+	var student = makeFred();
+
+	// EXERCISE F: delete test scores property
+	//... FILL ME IN ....
+     delete student['test scores'];
+	return student;
+  }
+
+
+  function exerciseG() {
+	var student = makeFred();
+
+	// EXERCISE G: check if test scores property exists
+    var propExists = "check scores" in student?true:false;
+    return propExists;
+  }
+
+  function exerciseH() {
+
+	// EXERCISE H: fill in this vector
+	var Point = function( x, y ) {
+		// ... FILL ME IN ...
+		this.x = x;
+		this.y = y;
+	}
+
+
+//	return ... FILL ME IN to return instance of point at (3,2) ...;
+   var point = new Point(3,2);
+    return point;
+
+}
+
+  function exerciseI() {
+
+	// EXERCISE I: fill in this vector
+	var Vector = function( x, y ) {
+	    // ... FILL ME IN ...
+	    this.x = x;
+	    this.y = y;
+	}
+
+	// FILL ME IN
+	Vector.prototype.vecLength = function() {
+		return Math.sqrt(this.x^2 + this.y^2);
+	};
+
+	var myVec = new Vector(10,20);
+	return myVec.vecLength().toFixed(2);
+  }
+  </script>
+</head>
+<body>
+
+<h1>Assignment 2, Part 2 - Object Oriented JavaScript</h1>
+
+<p>
+    This portion of the assignment will explore how objects work in JavaScript.
+	It is broken in to several parts:
+</p>
+
+<ol>
+<li>Play with object literal notation.</li>
+<li>Get, iterate over, and delete object properties.</li>
+<li>Write a constructor function.</li>
+<li>Using the prototype.</li>
+</ol>
+
+<p>
+    Your completed answers go in the <code>&lt;script&gt;</code> block of this
+	HTML file.  Look for the spots marked with <code>// EXERCISE</code>.  When
+	the assignment is complete, you can submit it via Moodle.
+	(See link under Lesson 3).
+</p>
+
+<h2>Object Literal Notation</h2>
+
+<p>
+	In lecture 3, we discussed how object literal notation works.  For exercise A,
+    your mission is to create an object using the literal notation which is equivalent
+	to:
+</p>
+
+<pre>
+	var student = new Object;
+	student.name = "fred";
+	student['favorite cheese'] = "munster";
+	student['test scores'] = new Array;
+	student['test scores'].push( 91 );
+	student['test scores'].push( 95 );
+	student['test scores'].push( 92 );
+</pre>
+
+<h2>Property Manipulation</h2>
+
+<p>
+	Let's practice manipulating object properties.  Exercises B and C just involve
+	accessing existing properties and should require no further explanation.
+</p>
+
+<p>
+	For Exercises D and E, you need to understand the two types of <code>for</code>
+	loops available in JavaScript.  The first is for looping over arrays.
+	The second is for looping over properties in an object.
+</p>
+
+<pre>
+	// loop over an array.  Note that arrays always have a length property set.
+	var names = ["Bob", "Fred", "Mindy"];
+	for ( var i = 0; i &lt; names.length; ++i ) {
+		console.log( names[i] );
+	}
+</pre>
+
+<pre>
+	// loop over properties in an object.
+	var student = {"a": 3, "b": 4};
+	for ( var propName in student ) {
+
+		// prop name is a string with the property name, which we can feed in
+		// the [] operator to get our desired property.
+		console.log( propName + " is set to " + student[propName] );
+	}
+</pre>
+
+<p>
+    For Exercise F, you just need the <code>delete</code> operator.  It's really
+	simple to use for object properties:
+</p>
+
+<pre>
+	var student = {"x": true};
+	delete student.x;
+</pre>
+
+<p>
+	For Exercise G, you need the <code>in</code> operator.  Again, it's simple.
+	Just remember that the property name needs to be a string, as shown below:
+</p>
+
+<pre>
+	var student = {"name": "Gertrude"};
+
+	if ( "name" in student ) {
+		console.log( "student has a name: " + student.name );
+	}
+	else {
+		console.log( "student is anonymous" );
+	}
+</pre>
+
+<h2>Constructor Functions</h2>
+
+<p>
+	By convention, constructor functions always begin with a capital letter.  They
+	are normally used together with the <code>new</code> operator to create objects
+	of a given class.
+</p>
+
+<p>
+	As described in the <a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Operators/new">
+	Mozilla developer documentation</a>, the new operator does three things when invoked on a constructor
+	function Foo():
+</p>
+
+<ol>
+<li>It creates a new object with its prototype set to Foo.prototype.</li>
+<li>It calls the constructor function Foo(), with the <code>this</code> variable
+    bound to the newly created object.</li>
+<li>The object from step 1 is returned from the expression, unless the constructor function
+    explicitly returns something else instead.</li>
+</ol>
+
+<p>
+    Here is an example:
+</p>
+
+<pre>
+	// a constructor function
+	function Chevy() {
+	    this.brand = "Chevrolet";
+		this.model = "Malibu";
+
+		// grab a handle to "this" to permanently bind in function below
+		var self = this;
+		this.honk = function() { console.log( self.model + " honks!" ); };
+	}
+
+	// make an instance of Chevy
+	var myChevy = new Chevy;
+
+	// call a member function on our instance
+	myChevy.honk();
+</pre>
+
+<p>
+	For Exercise H, you need to make a constructor function for class Point.
+	It takes two arguments, x and y, and sets them in the newly created object.
+	Use your constructor function to create an instance of the class with the
+	coordinates x=3,y=2.
+</p>
+
+<h2>Prototypes</h2>
+
+<p>
+	As discussed in the lectures, every JavaScript object has a prototype
+	associated with it.  The prototype may either be another object or it may
+	be null.  When we access a property in an object, we work our way up the
+	prototype chain until we either find said property or run out of prototypes
+	to look in.
+</p>
+
+<p>
+	Prototypes are assigned via the constructor function.  In standards-compliant
+	JavaScript, the prototype assignment can't be changed afterwards.  (The the
+	prototype object itself can still be manipulated).  Some browsers offer the
+	non-standard __proto__ property which gets around this rule.
+</p>
+
+<p>
+	Here is an example of a prototype.  Note that <code>this</code> works as
+	expected.
+</p>
+
+<pre>
+	// a constructor function
+	function Chevy() {
+	    this.brand = "Chevrolet";
+		this.model = "Malibu";
+
+		// grab a handle to "this" to permanently bind in function below
+		var self = this;
+		this.honk = function() { console.log( self.model + " honks!" ); };
+	}
+
+	// this prototype is assigned to all newly created Chevy instances
+	Chevy.prototype = {'honk': function() {console.log( this.model + " honks!" )} };
+
+	// make an instance of Chevy
+	var myChevy = new Chevy;
+	myChevy.honk();
+</pre>
+
+<p>
+	For the final Exercise I, create a constructor function called Vector.
+	Like the Point for the previous exercise, it should take two arguments,
+	x and y, and store these values in the new instance.  In the prototype,
+	create a method called vecLength() which computes the Euclidean length of
+	the vector.  (Square root of x^2 + y^2).  JavaScript has a built-in
+	<a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/sqrt">
+	Math</a> object that you can use.
+</p>
+
+</body>
+</html>
